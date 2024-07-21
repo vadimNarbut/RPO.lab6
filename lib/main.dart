@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';//Shared Preferences
 
 
 //Shared Preferences
-Future<void> saveQouteToPreferences(Quote quote) async{
+Future<void> saveQuoteToPreferences(Quote quote) async{
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('quote_content', quote.content);
   await prefs.setString('quote_author', quote.author);
@@ -21,6 +21,7 @@ Future<Quote?> getQuoteFromPreferences() async{
   return null;
 }
 
+//Файловая система
 
 
 
@@ -47,6 +48,13 @@ class Quote {
 }
 
 void main() async {
+
+  //пример использования Shared Preferences
+  var quote = Quote(content: 'Example quote', author: 'Author');
+  await saveQuoteToPreferences(quote);
+  var retrievedQuote = await getQuoteFromPreferences();
+  print('Shared Preferences: $retrievedQuote');
+
   try {
     Map<String, dynamic> quote = await fetchQuote();
     // Выбираем определенные элементы из JSON-ответа
