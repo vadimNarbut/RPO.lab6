@@ -3,8 +3,8 @@ import 'dart:convert'; // Добавьте этот импорт для рабо
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';//Shared Preferences
 import 'dart:io';
-//import 'package:path_provider/path_provider.dart';//Файловая система
-//import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';//Файловая система
+import 'package:flutter/material.dart';
 
 Future<Map<String, dynamic>> fetchQuote() async {
   final response = await http.get(Uri.parse('https://api.quotable.io/random'));
@@ -85,25 +85,30 @@ Future<void> main() async {
 
   var quote = Quote(content: 'Example quote', author: 'Author');
   //пример использования Shared Preferences
-  //await saveQuoteToPreferences(quote);
-  //var retrievedQuote = await getQuoteFromPreferences();
-  //print('Shared Preferences: $retrievedQuote');
+  await saveQuoteToPreferences(quote);
+  var retrievedQuote = await getQuoteFromPreferences();
+  print('Shared Preferences: $retrievedQuote');
 
   //пример использования файловой системы
-try
-{
-  String text = "Hello METANIT.COM\n";  // текст для записи
-  File file = File("hello.txt");
-  await file.writeAsString(text);
-  print("File has been written");
-}catch (e){
-  print('Error $e');
-}
+
+  //try
+  //{
+    //String text = "Hello METANIT.COM\n";  // текст для записи
+    //File file = File("hello.txt");
+    //await file.writeAsString(text);
+    //print("File has been written");
+  //}catch (e){
+    //print('Error $e');
+  //}
+
+  await saveQuoteToFile(quote);
+  var retrivesQoute = await getQuoteFromFile();
+  print('File System: $retrivesQoute');
 
 
-  //await saveQuoteToFile(quote);
-  //var retrievedQuote = await getQuoteFromFile();
-  //print('File System: $retrievedQuote');
+
+
+
 
  // try {
    // Map<String, dynamic> quote = await fetchQuote();
