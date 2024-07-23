@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:convert'; // Добавьте этот импорт для работы с JSON
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';//Shared Preferences
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';//Файловая система
-import 'package:flutter/material.dart';
+//import 'package:path_provider/path_provider.dart';//Файловая система
+//import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
 
 Future<Map<String, dynamic>> fetchQuote() async {
   final response = await http.get(Uri.parse('https://api.quotable.io/random'));
@@ -78,6 +83,38 @@ Future<Quote?> getQuoteFromFile() async {
   return null;
 }
 
+//SQLlite
+
+Future<Database> initializeDatabase() async{
+  return openDatabase(
+    join(await getDatabasesPath(), 'quotes.db'),
+    onCreate: (db, version){
+      return db.execute(
+        'CREATE TABLE quotes(id INTEGER PRIMARY KEY, content TEXT, author TEXT)',
+      );
+    },
+    version: 1,
+  );
+}
+
+Future<void> saveQuoteToDatabase(Quote quote) async{
+  final db = await initializeDatabase();
+  await db.insert(
+    'quotes',
+    {'content': quote.content, 'author': quote.author},
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
+Future<Quote?> getQuoteFromDatabase() async{
+  final db = await initializeDatabase();
+  final List<Map<String, dynamic>> maps = await db.query('quotes');
+  if(maps.isNotEmpty){
+    return Quote(content: maps.first['content'], author: maps.first['author']);
+  }
+  return null;
+}
+
 
 Future<void> main() async {
   //WidgetsFlutterBinding.ensureInitialized();
@@ -85,9 +122,9 @@ Future<void> main() async {
 
   var quote = Quote(content: 'Example quote', author: 'Author');
   //пример использования Shared Preferences
-  await saveQuoteToPreferences(quote);
-  var retrievedQuote = await getQuoteFromPreferences();
-  print('Shared Preferences: $retrievedQuote');
+  //await saveQuoteToPreferences(quote);
+  //var retrievedQuoteSP = await getQuoteFromPreferences();
+ // print('Shared Preferences: $retrievedQuoteSP');
 
   //пример использования файловой системы
 
@@ -102,10 +139,18 @@ Future<void> main() async {
   //}
 
   await saveQuoteToFile(quote);
-  var retrivesQoute = await getQuoteFromFile();
-  print('File System: $retrivesQoute');
+  var retrivesQouteFS = await getQuoteFromFile();
+  print('File System: $retrivesQouteFS');
 
 
+//SQL lite
+
+
+
+
+await saveQuoteToDatabase(quote);
+var retrivesQouteSQL = await getQuoteFromDatabase();
+print('SQLlite: $retrivesQouteSQL');
 
 
 
